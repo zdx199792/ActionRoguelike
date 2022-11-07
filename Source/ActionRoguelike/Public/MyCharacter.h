@@ -8,6 +8,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class USInteractionComponent;
+class UAnimMontage;
 UCLASS()
 class ACTIONROGUELIKE_API AMyCharacter : public ACharacter
 {
@@ -18,28 +20,43 @@ public:
 	AMyCharacter();
 
 protected:
+	//弹簧臂组件
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
+	//相机组件
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	//抛体组件
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> Projectileclass;
 
+	//交互组件
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	USInteractionComponent* InteractionComp;
+
+	//攻击动画
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	//攻击时TimerHandle，处理动画导致的攻击生成位置错误
+	FTimerHandle TimerHandle_PrimaryAttack;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveForward(float value);
 	void MoveRight(float value);
 	void PrimaryAttack();
 	void JumpStart();
 	void JumpEnd();
+	void PickUp();
+	void PrimaryAttack_TimeElapsed();
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

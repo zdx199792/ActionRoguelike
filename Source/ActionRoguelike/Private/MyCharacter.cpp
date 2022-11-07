@@ -5,6 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "SInteractionComponent.h"
+
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -28,6 +30,8 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	//bUseControllerRotationYaw表示人物的ActorRotation跟随ControllerRotation旋转
 	bUseControllerRotationYaw = false;
+
+	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 }
 
 // Called when the game starts or when spawned
@@ -59,6 +63,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), IE_Pressed, this, &AMyCharacter::PrimaryAttack);
 	//绑定跳跃事件和处理函数(Character已有对应Jump函数)
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+
+	PlayerInputComponent->BindAction(TEXT("PickUp"), IE_Pressed, this, &AMyCharacter::PickUp);
 }
 
 void AMyCharacter::MoveForward(float value)
@@ -87,10 +93,37 @@ void AMyCharacter::MoveRight(float value)
 
 void AMyCharacter::PrimaryAttack()
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM = FTransform(GetControlRotation(),HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	//播放攻击动画
+	PlayAnimMontage(AttackAnim);
 
+	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	
+	//销毁定时器，当角色抬手攻击时死亡，定时器销毁，不会执行PrimaryAttack_TimeElapsed()
+	//GetWorldTimerManager.ClearTimer(TimerHandle_PrimaryAttack);
+}
+
+void AMyCharacter::PickUp()
+{
+	if (InteractionComp) {
+		InteractionComp->PrimaryInteract();
+	}
+}
+
+//生成攻击特效
+void AMyCharacter::PrimaryAttack_TimeElapsed()
+{
+    //获取骨骼体手部的插槽作为魔法攻击类的生成点
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+    //生成朝向：控制器当前的旋转量 生成位置：手部插槽
+	FTransform SpawnTM = FTransform(GetControlRotation(),HandLocation);
+    
+    //参数设置
+	FActorSpawnParameters SpawnParams;
+    //设置为：总是生成；粒子在角色手部插槽生成，可能会与角色发生碰撞
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+    //从World中的SpawnTM按SpawnParams设置生成Projectileclass类
 	GetWorld()->SpawnActor<AActor>(Projectileclass ,SpawnTM, SpawnParams);
 }
