@@ -23,6 +23,6 @@ class ACTIONROGUELIKE_API ISInteractionInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	//交互功能函数，参数表示交互的对象
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
 };

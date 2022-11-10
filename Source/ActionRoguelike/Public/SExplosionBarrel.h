@@ -27,7 +27,7 @@ protected:
 	URadialForceComponent* ForceComp;
 	
 	//发生碰撞处理函数
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	// Called when the game starts or when spawned

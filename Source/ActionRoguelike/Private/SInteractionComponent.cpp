@@ -25,7 +25,7 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-//主动交互
+//主动进行交互
 void USInteractionComponent::PrimaryInteract()
 {
 	//碰撞查询参数

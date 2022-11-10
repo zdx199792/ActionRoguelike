@@ -21,7 +21,7 @@ public:
 
 protected:
 	//球体组件用于判断碰撞
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* SphereComp;
 
 	//添加抛体组件用于运动

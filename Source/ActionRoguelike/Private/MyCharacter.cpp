@@ -38,7 +38,6 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -123,7 +122,8 @@ void AMyCharacter::PrimaryAttack_TimeElapsed()
 	FActorSpawnParameters SpawnParams;
     //设置为：总是生成；粒子在角色手部插槽生成，可能会与角色发生碰撞
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	
+	//设置抛体的发起者为玩家自身
+	SpawnParams.Instigator = this;
     //从World中的SpawnTM按SpawnParams设置生成Projectileclass类
 	GetWorld()->SpawnActor<AActor>(Projectileclass ,SpawnTM, SpawnParams);
 }
