@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
+class UMyAttributeComponent;
 class UAnimMontage;
 UCLASS()
 class ACTIONROGUELIKE_API AMyCharacter : public ACharacter
@@ -33,8 +34,12 @@ protected:
 	TSubclassOf<AActor> Projectileclass;
 
 	//交互组件
-	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USInteractionComponent* InteractionComp;
+
+	//属性组件
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
+	UMyAttributeComponent* AttributeComp;
 
 	//攻击动画
 	UPROPERTY(EditAnywhere, Category = "Attack")

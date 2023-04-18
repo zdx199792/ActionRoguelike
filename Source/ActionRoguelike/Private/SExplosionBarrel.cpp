@@ -5,12 +5,11 @@
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/CollisionProfile.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ASExplosionBarrel::ASExplosionBarrel()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 	//创建静态网格体
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
@@ -36,7 +35,11 @@ ASExplosionBarrel::ASExplosionBarrel()
 void ASExplosionBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Log, TEXT("OnActorHit in Explosive Barrel"));
-	//ForceComp释放作用力
+
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time:%f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
+
+	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 	ForceComp->FireImpulse();
 }
 

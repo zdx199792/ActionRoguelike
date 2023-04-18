@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
-
+#include "MyAttributeComponent.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -31,7 +31,11 @@ AMyCharacter::AMyCharacter()
 	//bUseControllerRotationYaw表示人物的ActorRotation跟随ControllerRotation旋转
 	bUseControllerRotationYaw = false;
 
+	//交互组件
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
+
+	//属性组件
+	AttributeComp = CreateDefaultSubobject<UMyAttributeComponent>("AttributeComp");
 }
 
 // Called when the game starts or when spawned
