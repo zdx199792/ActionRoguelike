@@ -29,9 +29,17 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
-	//抛体组件
+	//魔法攻击抛体组件
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> Projectileclass;
+
+	//黑洞攻击抛体组件
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BlackHoleProjectileclass;
+
+	//闪现抛体组件
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> DashProjectileclass;
 
 	//交互组件
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -58,6 +66,16 @@ protected:
 	void JumpEnd();
 	void PickUp();
 	void PrimaryAttack_TimeElapsed();
+	void Dash();
+	void Dash_TimeElapsed();
+	void BlackHoleAttack();
+	void BlackHoleAttack_TimeElapsed();
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

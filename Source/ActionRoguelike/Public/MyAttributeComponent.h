@@ -31,4 +31,8 @@ public:
 	//对血量的改变
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(float Delta);
+
+	//判断玩家是否存活
+	UFUNCTION(BlueprintCallable)
+	bool IsAlive() const;
 };
