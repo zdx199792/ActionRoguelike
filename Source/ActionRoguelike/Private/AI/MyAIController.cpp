@@ -9,14 +9,16 @@ void AMyAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	//运行行为树
-	RunBehaviorTree(BehaviorTree);
-
-	APawn* MyPawn = UGameplayStatics::GetPlayerPawn(this, 0);
-	if (MyPawn)
-	{
-		//GetBlackboardComponent()->SetValueAsVector("MoveToLocation", MyPawn->GetActorLocation());
-
-		//设置寻路目标Actor为玩家
-		GetBlackboardComponent()->SetValueAsObject("TargetActor", MyPawn);
+	if (ensureMsgf(BehaviorTree, TEXT("Behavior Tree is nullptr, Please assign Behavior Tree in your AIController")))
+	{	
+		RunBehaviorTree(BehaviorTree);
 	}
+	//APawn* MyPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	//if (MyPawn)
+	//{
+	//	//GetBlackboardComponent()->SetValueAsVector("MoveToLocation", MyPawn->GetActorLocation());
+
+	//	//设置寻路目标Actor为玩家
+	//	GetBlackboardComponent()->SetValueAsObject("TargetActor", MyPawn);
+	//}
 }
