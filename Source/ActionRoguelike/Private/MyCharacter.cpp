@@ -8,7 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
 #include "MyAttributeComponent.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
@@ -37,6 +38,9 @@ AMyCharacter::AMyCharacter()
 
 	//属性组件
 	AttributeComp = CreateDefaultSubobject<UMyAttributeComponent>("AttributeComp");
+
+
+	HandSocketName = "Muzzle_01";
 }
 
 void AMyCharacter::PostInitializeComponents()
@@ -161,12 +165,19 @@ void AMyCharacter::BlackHoleAttack_TimeElapsed()
 	SpawnProjectile(BlackHoleProjectileclass);
 }
 
+void AMyCharacter::StartAttackEffects()
+{
+	PlayAnimMontage(AttackAnim);
+
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+}
+
 //发射投射物
 void AMyCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {
 	if (ensureAlways(ClassToSpawn)) {
 		//获取骨骼体手部的插槽作为投射物类的生成点
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 		//参数设置
 		FActorSpawnParameters SpawnParams;
 		//设置为：总是生成；粒子在角色手部插槽生成，可能会与角色发生碰撞

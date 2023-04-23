@@ -6,15 +6,28 @@
 // Sets default values for this component's properties
 UMyAttributeComponent::UMyAttributeComponent()
 {
-	Health = 100;
+	MaxHealth = 100;
+	Health = MaxHealth;
 }
-
+//玩家是否满血
+bool UMyAttributeComponent::IsFullHealth() const
+{
+	return Health == MaxHealth;
+}
+//返回最大生命值
+float UMyAttributeComponent::GetHealthMax() const
+{
+	return MaxHealth;
+}
 bool UMyAttributeComponent::ApplyHealthChange(float Delta)
 {
-	Health += Delta;
-	//
-	OnHealthChange.Broadcast(nullptr,this, Health,Delta);
-	return true;
+	float OldHealth = Health;
+	//将 Health 的值限制在 0 到 MaxHealth 之间
+	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
+	//计算实际的生命值变化量
+	float ActualDelta = Health - OldHealth;
+	OnHealthChange.Broadcast(nullptr,this, Health,ActualDelta);
+	return ActualDelta != 0;
 }
 
 bool UMyAttributeComponent::IsAlive() const

@@ -56,6 +56,16 @@ protected:
 	//攻击时TimerHandle，处理动画导致的攻击生成位置错误
 	FTimerHandle TimerHandle_PrimaryAttack;
 
+	//手部插槽名
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName HandSocketName;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
+	//攻击动画时生成的粒子效果
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UParticleSystem* CastingEffect;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -71,7 +81,8 @@ protected:
 	void BlackHoleAttack();
 	void BlackHoleAttack_TimeElapsed();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
-	
+	void StartAttackEffects();
+
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta);
 
