@@ -11,6 +11,8 @@
 AMyAICharacter::AMyAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 //用于处理当角色看到其他角色时的逻辑
