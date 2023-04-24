@@ -39,7 +39,8 @@ AMyCharacter::AMyCharacter()
 	//属性组件
 	AttributeComp = CreateDefaultSubobject<UMyAttributeComponent>("AttributeComp");
 
-
+	AttackAnimDelay = 0.2f;
+	TimeToHitParamName = "TimeToHit";
 	HandSocketName = "Muzzle_01";
 }
 
@@ -47,19 +48,6 @@ void AMyCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	AttributeComp->OnHealthChange.AddDynamic(this, &AMyCharacter::OnHealthChanged);
-}
-
-// Called when the game starts or when spawned
-void AMyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void AMyCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -115,7 +103,7 @@ void AMyCharacter::PrimaryAttack()
 {
 	
 	//播放攻击动画
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 
 	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::PrimaryAttack_TimeElapsed, 0.2f);
@@ -140,7 +128,7 @@ void AMyCharacter::PrimaryAttack_TimeElapsed()
 void AMyCharacter::Dash()
 {
 	//播放攻击动画
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 
 	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::Dash_TimeElapsed, 0.2f);
@@ -154,7 +142,7 @@ void AMyCharacter::Dash_TimeElapsed()
 void AMyCharacter::BlackHoleAttack()
 {
 	//播放攻击动画
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 
 	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::BlackHoleAttack_TimeElapsed, 0.2f);
@@ -219,6 +207,11 @@ void AMyCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 
 void AMyCharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	}
+
 	//血量为0时，禁止玩家输入
 	if(NewHealth <= 0.0f && Delta <= 0.0f)
 	{

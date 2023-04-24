@@ -19,14 +19,14 @@ float UMyAttributeComponent::GetHealthMax() const
 {
 	return MaxHealth;
 }
-bool UMyAttributeComponent::ApplyHealthChange(float Delta)
+bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	float OldHealth = Health;
 	//将 Health 的值限制在 0 到 MaxHealth 之间
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
 	//计算实际的生命值变化量
 	float ActualDelta = Health - OldHealth;
-	OnHealthChange.Broadcast(nullptr,this, Health,ActualDelta);
+	OnHealthChange.Broadcast(InstigatorActor,this, Health,ActualDelta);
 	return ActualDelta != 0;
 }
 
@@ -34,4 +34,23 @@ bool UMyAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
 }
+UMyAttributeComponent* UMyAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<UMyAttributeComponent>(FromActor->GetComponentByClass(UMyAttributeComponent::StaticClass()));
+	}
 
+	return nullptr;
+}
+
+bool UMyAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	UMyAttributeComponent* AttributeComp = GetAttributes(Actor);
+	if (AttributeComp)
+	{
+		return AttributeComp->IsAlive();
+	}
+
+	return false;
+}

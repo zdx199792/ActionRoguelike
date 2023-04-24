@@ -63,11 +63,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float AttackAnimDelay;
 	//攻击动画时生成的粒子效果
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UParticleSystem* CastingEffect;
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	void MoveForward(float value);
 	void MoveRight(float value);
@@ -88,9 +88,6 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

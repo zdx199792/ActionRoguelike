@@ -7,6 +7,7 @@
 #include "MyAICharacter.generated.h"
 
 class UPawnSensingComponent;
+class UMyAttributeComponent;
 UCLASS()
 class ACTIONROGUELIKE_API AMyAICharacter : public ACharacter
 {
@@ -20,9 +21,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UMyAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
+	
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
-
+	void SetTargetActor(AActor* NewTarget);
 };

@@ -33,7 +33,7 @@ public:
 
 	//对血量的改变
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool ApplyHealthChange(float Delta);
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 	//判断玩家是否存活
 	UFUNCTION(BlueprintCallable)
@@ -44,4 +44,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthMax() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	static UMyAttributeComponent* GetAttributes(AActor* FromActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
 };

@@ -75,7 +75,6 @@ void AMyGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryI
 	//通过 GetWorld()->SpawnActor<AActor>() 函数在该位置生成一个 MinionClass 类型的角色
 	if (Locations.IsValidIndex(0))
 	{
-
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 	}
 }

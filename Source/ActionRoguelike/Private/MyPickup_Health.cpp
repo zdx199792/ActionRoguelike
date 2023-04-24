@@ -22,7 +22,7 @@ void AMyPickup_Health::Interact_Implementation(APawn* InstigatorPawn)
 	if (ensure(AttributeComp) && !AttributeComp->IsFullHealth())
 	{
 		//如果没有满血，则恢复到满血
-		if (AttributeComp->ApplyHealthChange(AttributeComp->GetHealthMax()))
+		if (AttributeComp->ApplyHealthChange(this, AttributeComp->GetHealthMax()))
 		{
 			//隐藏生命药水并启动其重生计时器
 			HideAndCooldownPickup();
