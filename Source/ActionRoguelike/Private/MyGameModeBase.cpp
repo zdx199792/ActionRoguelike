@@ -30,7 +30,8 @@ void AMyGameModeBase::SpawnBotTimerElapsed()
 	{
 		AMyAICharacter* Bot = *It;
 
-		UMyAttributeComponent* AttributeComp = Cast<UMyAttributeComponent>(Bot->GetComponentByClass(UMyAttributeComponent::StaticClass()));
+		//UMyAttributeComponent* AttributeComp = Cast<UMyAttributeComponent>(Bot->GetComponentByClass(UMyAttributeComponent::StaticClass()));
+		UMyAttributeComponent* AttributeComp = UMyAttributeComponent::GetAttributes(Bot);
 		if (ensure(AttributeComp) && AttributeComp->IsAlive())
 		{
 			NrOfAliveBots++;

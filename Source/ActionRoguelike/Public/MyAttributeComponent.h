@@ -16,6 +16,12 @@ class ACTIONROGUELIKE_API UMyAttributeComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UMyAttributeComponent();
+	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	static UMyAttributeComponent* GetAttributes(AActor* FromActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
 
 protected:
 	//ÑªÁ¿
@@ -45,9 +51,4 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealthMax() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	static UMyAttributeComponent* GetAttributes(AActor* FromActor);
-
-	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
-	static bool IsActorAlive(AActor* Actor);
 };

@@ -43,24 +43,22 @@ void AMyAICharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeCompon
 		{
 			SetTargetActor(InstigatorActor);
 		}
-
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
-
+		//AI角色死亡
 		if (NewHealth <= 0.0f)
 		{
-			// stop BT
+			//停止行为树
 			AAIController* AIC = Cast<AAIController>(GetController());
 			if (AIC)
 			{
 				AIC->GetBrainComponent()->StopLogic("Killed");
 			}
-
-			// ragdoll
+            //设置模拟物理效果
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 
-			// set lifespan
-			SetLifeSpan(10.0f);
+			//设置尸体存留时间
+			SetLifeSpan(3.0f);
 		}
 	}
 }
