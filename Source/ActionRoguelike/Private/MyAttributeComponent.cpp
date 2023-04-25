@@ -21,6 +21,10 @@ float UMyAttributeComponent::GetHealthMax() const
 }
 bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
 	float OldHealth = Health;
 	//将 Health 的值限制在 0 到 MaxHealth 之间
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
@@ -53,4 +57,8 @@ bool UMyAttributeComponent::IsActorAlive(AActor* Actor)
 	}
 
 	return false;
+}
+bool UMyAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
 }

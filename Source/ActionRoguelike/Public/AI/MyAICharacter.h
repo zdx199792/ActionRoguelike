@@ -8,6 +8,8 @@
 
 class UPawnSensingComponent;
 class UMyAttributeComponent;
+class UUserWidget;
+class UMyWorldUserWidget;
 UCLASS()
 class ACTIONROGUELIKE_API AMyAICharacter : public ACharacter
 {
@@ -18,6 +20,13 @@ public:
 	AMyAICharacter();
 
 protected:
+	//用于保存当前激活的健康条 widget
+	UMyWorldUserWidget* ActiveHealthBar;
+
+	//于存储健康条 widget 的类
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
 

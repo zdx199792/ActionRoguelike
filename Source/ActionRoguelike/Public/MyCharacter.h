@@ -90,4 +90,8 @@ protected:
 public:	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	//Exec宏，意味着该函数可以在游戏运行时通过控制台命令来调用
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100);
 };

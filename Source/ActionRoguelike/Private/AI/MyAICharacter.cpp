@@ -8,7 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "MyAttributeComponent.h"
 #include "BrainComponent.h"
-
+#include "MyWorldUserWidget.h"
 // Sets default values
 AMyAICharacter::AMyAICharacter()
 {
@@ -43,6 +43,19 @@ void AMyAICharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeCompon
 		{
 			SetTargetActor(InstigatorActor);
 		}
+		// 如果血条 UI 没有被创建，则创建血条 UI
+		if (ActiveHealthBar == nullptr)
+		{
+			ActiveHealthBar = CreateWidget<UMyWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthBar)
+			{
+				// 将血条 UI 关联到当前角色
+				ActiveHealthBar->AttachedActor = this;
+				// 将血条 UI 添加到视图中
+				ActiveHealthBar->AddToViewport();
+			}
+		}
+
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 		//AI角色死亡
 		if (NewHealth <= 0.0f)

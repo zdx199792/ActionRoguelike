@@ -79,3 +79,17 @@ void AMyGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryI
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 	}
 }
+
+void AMyGameModeBase::KillAll()
+{
+	for (TActorIterator<AMyAICharacter> It(GetWorld()); It; ++It)
+	{
+		AMyAICharacter* Bot = *It;
+
+		UMyAttributeComponent* AttributeComp = UMyAttributeComponent::GetAttributes(Bot);
+		if (ensure(AttributeComp) && AttributeComp->IsAlive())
+		{
+			AttributeComp->Kill(this); 
+		}
+	}
+}
