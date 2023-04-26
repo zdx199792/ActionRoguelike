@@ -62,3 +62,8 @@ bool UMyAttributeComponent::Kill(AActor* InstigatorActor)
 {
 	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
 }
+
+float UMyAttributeComponent::GetHealth() const
+{
+	return Health;
+}

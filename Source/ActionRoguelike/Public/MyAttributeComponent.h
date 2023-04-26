@@ -26,6 +26,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool Kill(AActor* InstigatorActor);
 
+	UFUNCTION(BlueprintCallable)
+	float GetHealth() const;
 protected:
 	//ÑªÁ¿
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
