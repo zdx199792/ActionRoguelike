@@ -9,6 +9,9 @@
 #include "MyAttributeComponent.h"
 #include "BrainComponent.h"
 #include "MyWorldUserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 AMyAICharacter::AMyAICharacter()
 {
@@ -16,6 +19,9 @@ AMyAICharacter::AMyAICharacter()
 	AttributeComp = CreateDefaultSubobject<UMyAttributeComponent>("AttributeComp");
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	TimeToHitParamName = "TimeToHit";
 }
 
@@ -70,8 +76,10 @@ void AMyAICharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeCompon
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
 			//设置尸体存留时间
-			SetLifeSpan(3.0f);
+			SetLifeSpan(10.0f);
 		}
 	}
 }

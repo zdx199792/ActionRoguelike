@@ -5,6 +5,8 @@
 #include "SInteractionInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -28,6 +30,8 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 //主动进行交互
 void USInteractionComponent::PrimaryInteract()
 {
+	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
+
 	//碰撞查询参数
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic); //WorldDynamic类型时检测
@@ -52,6 +56,10 @@ void USInteractionComponent::PrimaryInteract()
 	FColor LinearColors = bBlockHit ? FColor::Green : FColor::Red;
 	for (FHitResult Hit : Hits) 
 	{
+		if (bDebugDraw)
+		{
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.0f, 32, LinearColors, false, 2.0f);
+		}
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor) 	
 		{
@@ -66,7 +74,9 @@ void USInteractionComponent::PrimaryInteract()
 			//遇到首个交互体后跳出循环
 			break; 
 		}
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.0f, 32, LinearColors, false, 2.0f);
 	}
-	DrawDebugLine(GetWorld(), EyeLocation, End, LinearColors, false, 2.0f, 0, 2.0f);
+	if (bDebugDraw)
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, End, LinearColors, false, 2.0f, 0, 2.0f);
+	}
 }

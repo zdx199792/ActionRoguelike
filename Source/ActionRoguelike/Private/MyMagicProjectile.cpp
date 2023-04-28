@@ -6,6 +6,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "MyAttributeComponent.h"
+#include "MyGameplayFunctionLibrary.h"
 
 // Sets default values
 AMyMagicProjectile::AMyMagicProjectile()
@@ -19,13 +20,17 @@ void AMyMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{        
-		//获得AttributeComp
-		UMyAttributeComponent* AttributeComp = Cast<UMyAttributeComponent>(OtherActor->GetComponentByClass(UMyAttributeComponent::StaticClass()));
-		        
-		//再次判空，重叠的可能是没有属性组件的物体
-		if (AttributeComp) {
-			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-			Explode(); 
+		////获得AttributeComp
+		//UMyAttributeComponent* AttributeComp = Cast<UMyAttributeComponent>(OtherActor->GetComponentByClass(UMyAttributeComponent::StaticClass()));
+		//        
+		////再次判空，重叠的可能是没有属性组件的物体
+		//if (AttributeComp) {
+		//	AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
+		//	Explode(); 
+		//}
+		if (UMyGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
+			Explode();
 		}
 	}
 }

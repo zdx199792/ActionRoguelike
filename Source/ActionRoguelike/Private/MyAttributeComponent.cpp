@@ -2,6 +2,9 @@
 
 
 #include "MyAttributeComponent.h"
+#include "MyGameModeBase.h"
+
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
 // Sets default values for this component's properties
 UMyAttributeComponent::UMyAttributeComponent()
@@ -21,16 +24,35 @@ float UMyAttributeComponent::GetHealthMax() const
 }
 bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged())
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.0f)
 	{
 		return false;
 	}
+	// 如果 Delta 值小于 0，即表示要对角色造成伤害
+	if (Delta < 0.0f)
+	{
+		// 获取 CVarDamageMultiplier 控制台变量在游戏线程上的值
+		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
+		// 根据全局伤害乘数调整 Delta 值
+		Delta *= DamageMultiplier;
+	}
+
 	float OldHealth = Health;
 	//将 Health 的值限制在 0 到 MaxHealth 之间
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
 	//计算实际的生命值变化量
 	float ActualDelta = Health - OldHealth;
 	OnHealthChange.Broadcast(InstigatorActor,this, Health,ActualDelta);
+
+	if (ActualDelta < 0.0f && Health == 0.0f)
+	{
+		AMyGameModeBase* GM = GetWorld()->GetAuthGameMode<AMyGameModeBase>();
+		if (GM)
+		{
+			GM->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
+
 	return ActualDelta != 0;
 }
 

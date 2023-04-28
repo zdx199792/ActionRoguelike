@@ -8,6 +8,9 @@
 #include "AI/MyAICharacter.h"
 #include "MyAttributeComponent.h"
 #include "EngineUtils.h"
+#include "MyCharacter.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 AMyGameModeBase::AMyGameModeBase()
 {
@@ -24,6 +27,14 @@ void AMyGameModeBase::StartPlay()
 
 void AMyGameModeBase::SpawnBotTimerElapsed()
 {
+	// 在游戏线程上获取 CVarSpawnBots 控制台变量的值
+	if (!CVarSpawnBots.GetValueOnGameThread())
+	{
+		// 如果 CVarSpawnBots 的值为 false（禁止生成机器人），则打印一条警告日志，直接返回，不执行后续的生成机器人操作。
+		UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
+		return;
+	}
+
 	int32 NrOfAliveBots = 0;
 	//统计当前世界中存活的 AMyAICharacter 类型的角色数量
 	for (TActorIterator<AMyAICharacter> It(GetWorld()); It; ++It)
@@ -92,4 +103,31 @@ void AMyGameModeBase::KillAll()
 			AttributeComp->Kill(this); 
 		}
 	}
+}
+
+void AMyGameModeBase::RespawnPlayerElapsed(AController* Controller)
+{
+	if (ensure(Controller))
+	{
+		Controller->UnPossess();
+
+		RestartPlayer(Controller);
+	}
+}
+
+void AMyGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+	AMyCharacter* Player = Cast<AMyCharacter>(VictimActor);
+	if (Player)
+	{
+		FTimerHandle TimerHandle_RespawnDelay;
+
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+		float RespawnDelay = 5.0f;
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }
