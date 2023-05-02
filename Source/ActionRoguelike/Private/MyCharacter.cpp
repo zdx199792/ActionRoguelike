@@ -10,6 +10,7 @@
 #include "MyAttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "MyActionComponent.h"
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
@@ -38,6 +39,8 @@ AMyCharacter::AMyCharacter()
 
 	//属性组件
 	AttributeComp = CreateDefaultSubobject<UMyAttributeComponent>("AttributeComp");
+
+	ActionComp = CreateDefaultSubobject<UMyActionComponent>("ActionComp");
 
 	AttackAnimDelay = 0.2f;
 	TimeToHitParamName = "TimeToHit";
@@ -75,7 +78,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	
 	PlayerInputComponent->BindAction(TEXT("BlackHoleAttack"), IE_Pressed, this, &AMyCharacter::BlackHoleAttack);
 
-
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMyCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMyCharacter::SprintStop);
 }
 
 void AMyCharacter::MoveForward(float value)
@@ -100,6 +104,15 @@ void AMyCharacter::MoveRight(float value)
 	//返回右向量(Y代表右向量)
 	FVector RightVector = FRotationMatrix(controlRot).GetScaledAxis(EAxis::Y);
 	AddMovementInput(RightVector, value);
+}
+void AMyCharacter::SprintStart()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void AMyCharacter::SprintStop()
+{
+	ActionComp->StopActionByName(this, "Sprint");
 }
 
 void AMyCharacter::PrimaryAttack()

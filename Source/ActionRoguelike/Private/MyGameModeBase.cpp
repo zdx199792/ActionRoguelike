@@ -48,7 +48,7 @@ void AMyGameModeBase::SpawnBotTimerElapsed()
 			NrOfAliveBots++;
 		}
 	}
-	UE_LOG(LogTemp, Log, TEXT("Found %i alive bots"), NrOfAliveBots);
+	//UE_LOG(LogTemp, Log, TEXT("Found %i alive bots"), NrOfAliveBots);
 
 	float MaxBotCount = 10.0f;
 
@@ -61,7 +61,7 @@ void AMyGameModeBase::SpawnBotTimerElapsed()
 	//与当前存活的 bot 数量进行比较。如果存活的 bot 数量小于最大数量，则从查询结果中获取一个位置
 	if (NrOfAliveBots >= MaxBotCount)
 	{
-		UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity. Skipping bot spawn."));
+		//UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity. Skipping bot spawn."));
 		return;
 	}
 	//运行一个环境查询（Environment Query System, EQS）并获取查询实例 QueryInstance。

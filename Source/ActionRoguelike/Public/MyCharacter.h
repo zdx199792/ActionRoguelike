@@ -11,6 +11,7 @@ class UCameraComponent;
 class USInteractionComponent;
 class UMyAttributeComponent;
 class UAnimMontage;
+class UMyActionComponent;
 UCLASS()
 class ACTIONROGUELIKE_API AMyCharacter : public ACharacter
 {
@@ -48,7 +49,10 @@ protected:
 	//属性组件
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
 	UMyAttributeComponent* AttributeComp;
-
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UMyActionComponent* ActionComp;
+	
 	//攻击动画
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
@@ -71,6 +75,8 @@ protected:
 
 	void MoveForward(float value);
 	void MoveRight(float value);
+	void SprintStart();
+	void SprintStop();
 	void PrimaryAttack();
 	void JumpStart();
 	void JumpEnd();
