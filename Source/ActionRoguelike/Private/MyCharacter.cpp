@@ -42,9 +42,7 @@ AMyCharacter::AMyCharacter()
 
 	ActionComp = CreateDefaultSubobject<UMyActionComponent>("ActionComp");
 
-	AttackAnimDelay = 0.2f;
 	TimeToHitParamName = "TimeToHit";
-	HandSocketName = "Muzzle_01";
 }
 
 void AMyCharacter::PostInitializeComponents()
@@ -117,15 +115,7 @@ void AMyCharacter::SprintStop()
 
 void AMyCharacter::PrimaryAttack()
 {
-	
-	//播放攻击动画
-	StartAttackEffects();
-
-	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::PrimaryAttack_TimeElapsed, 0.2f);
-	
-	//销毁定时器，当角色抬手攻击时死亡，定时器销毁，不会执行PrimaryAttack_TimeElapsed()
-	//GetWorldTimerManager.ClearTimer(TimerHandle_PrimaryAttack);
+	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
 void AMyCharacter::PickUp()
@@ -135,91 +125,16 @@ void AMyCharacter::PickUp()
 	}
 }
 
-//生成攻击特效
-void AMyCharacter::PrimaryAttack_TimeElapsed()
-{
-	SpawnProjectile(Projectileclass);
-}
-
 void AMyCharacter::Dash()
 {
-	//播放攻击动画
-	StartAttackEffects();
-
-	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::Dash_TimeElapsed, 0.2f);
-}
-
-void AMyCharacter::Dash_TimeElapsed()
-{
-	SpawnProjectile(DashProjectileclass);
+	ActionComp->StartActionByName(this, "Dash");
 }
 
 void AMyCharacter::BlackHoleAttack()
 {
-	//播放攻击动画
-	StartAttackEffects();
-
-	//设置定时器，延迟生成攻击特效，0.2s后调用PrimaryAttack_TimeElapsed()
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AMyCharacter::BlackHoleAttack_TimeElapsed, 0.2f);
+	ActionComp->StartActionByName(this, "Blackhole");
 }
 
-void AMyCharacter::BlackHoleAttack_TimeElapsed()
-{
-	SpawnProjectile(BlackHoleProjectileclass);
-}
-
-void AMyCharacter::StartAttackEffects()
-{
-	PlayAnimMontage(AttackAnim);
-
-	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-}
-
-//发射投射物
-void AMyCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
-{
-	if (ensureAlways(ClassToSpawn)) {
-		//获取骨骼体手部的插槽作为投射物类的生成点
-		FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
-		//参数设置
-		FActorSpawnParameters SpawnParams;
-		//设置为：总是生成；粒子在角色手部插槽生成，可能会与角色发生碰撞
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		//设置抛体的发起者为玩家自身
-		SpawnParams.Instigator = this;
-		//用于碰撞检测
-		FCollisionShape Shape;
-		Shape.SetSphere(20.0f);
-		//碰撞查询参数，并设置当前角色对象this忽略
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-		//碰撞对象查询参数，并添加需要查询的对象类型
-		FCollisionObjectQueryParams ObjParams;
-		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		//通过 CameraComp（相机组件）获取相机位置作为射线起点：TraceStart
-		FVector TraceStart = CameraComp->GetComponentLocation();
-		//通过角色的控制旋转获取射线方向，并乘以距离因子5000，得到射线终点：TraceEnd。
-		FVector TraceEnd = CameraComp->GetComponentLocation() + (GetControlRotation().Vector() * 5000);
-
-		FHitResult Hit;
-		//进行射线检测，如果有碰撞，则更新TraceEnd为碰撞点的位置
-		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
-		{
-			TraceEnd = Hit.ImpactPoint;
-		}
-		//获取生成物的选择角度
-		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-		//根据生成物的生成位置和旋转角度获得生成物变换矩阵
-		FTransform spawnTM = FTransform(ProjRotation, HandLocation);
-
-		//生成指定类ClassToSpawn的抛体对象，并传入生成的位置、旋转(spawnTM)和生成参数 SpawnParams 进行生成
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, spawnTM, SpawnParams);
-	}
-}
 
 void AMyCharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta)
 {

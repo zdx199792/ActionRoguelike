@@ -13,6 +13,11 @@ UMyActionComponent::UMyActionComponent()
 void UMyActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	// 遍历 DefaultActions 数组，将其中的每个能力添加到 Actions 数组中
+	for (TSubclassOf<UMyAction> ActionClass : DefaultActions)
+	{
+		AddAction(ActionClass);
+	}
 }
 
 void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

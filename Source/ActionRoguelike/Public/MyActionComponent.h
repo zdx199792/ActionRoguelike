@@ -25,6 +25,9 @@ public:
 	UMyActionComponent();
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Actions")
+	TArray<TSubclassOf<UMyAction>> DefaultActions;
+
 	// 声明一个保存动作指针的数组
 	UPROPERTY()
 	TArray<UMyAction*> Actions;

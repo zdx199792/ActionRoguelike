@@ -30,18 +30,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
-	//魔法攻击抛体组件
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> Projectileclass;
-
-	//黑洞攻击抛体组件
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> BlackHoleProjectileclass;
-
-	//闪现抛体组件
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> DashProjectileclass;
-
 	//交互组件
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USInteractionComponent* InteractionComp;
@@ -52,42 +40,19 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMyActionComponent* ActionComp;
-	
-	//攻击动画
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim;
-
-	//攻击时TimerHandle，处理动画导致的攻击生成位置错误
-	FTimerHandle TimerHandle_PrimaryAttack;
-
-	//手部插槽名
-	UPROPERTY(VisibleAnywhere, Category = "Effects")
-	FName HandSocketName;
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	float AttackAnimDelay;
-	//攻击动画时生成的粒子效果
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UParticleSystem* CastingEffect;
 
 	void MoveForward(float value);
 	void MoveRight(float value);
 	void SprintStart();
 	void SprintStop();
-	void PrimaryAttack();
-	void JumpStart();
-	void JumpEnd();
-	void PickUp();
-	void PrimaryAttack_TimeElapsed();
-	void Dash();
-	void Dash_TimeElapsed();
+	void PrimaryAttack();	
 	void BlackHoleAttack();
-	void BlackHoleAttack_TimeElapsed();
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
-	void StartAttackEffects();
+	void PickUp();
+	void Dash();
+
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta);
