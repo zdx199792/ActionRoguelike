@@ -10,6 +10,7 @@ class UPawnSensingComponent;
 class UMyAttributeComponent;
 class UUserWidget;
 class UMyWorldUserWidget;
+class UMyActionComponent;
 UCLASS()
 class ACTIONROGUELIKE_API AMyAICharacter : public ACharacter
 {
@@ -32,6 +33,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMyAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UMyActionComponent* ActionComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;

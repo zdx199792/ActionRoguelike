@@ -23,6 +23,8 @@ void UMyActionComponent::BeginPlay()
 void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	FString DebugMsg = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
+	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, DebugMsg);
 }
 
 // 添加动作
@@ -48,6 +50,14 @@ bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
+			// 检查该动作是否可以启动
+			if (!Action->CanStart(Instigator))
+			{
+				// 如果无法启动，输出错误信息，并继续查找下一个动作
+				FString FailedMsg = FString::Printf(TEXT("Failed to run: %s"), *ActionName.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FailedMsg);
+				continue;
+			}
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -63,8 +73,11 @@ bool UMyActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
-			Action->StopAction(Instigator);
-			return true;
+			if (Action->IsRunning())
+			{
+				Action->StopAction(Instigator);
+				return true;
+			}
 		}
 	}
 	return false;

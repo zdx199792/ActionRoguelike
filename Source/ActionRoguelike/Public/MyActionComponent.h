@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "MyActionComponent.generated.h"
 
 class UMyAction;
@@ -13,6 +14,9 @@ class ACTIONROGUELIKE_API UMyActionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
+	FGameplayTagContainer ActiveGameplayTags;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AddAction(TSubclassOf<UMyAction> ActionClass);
 
