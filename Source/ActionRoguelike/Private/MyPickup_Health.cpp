@@ -3,11 +3,11 @@
 
 #include "MyPickup_Health.h"
 #include "MyAttributeComponent.h"
-
+#include "MyPlayerState.h"
 
 AMyPickup_Health::AMyPickup_Health()
 {
-	
+	CreditCost = 50;
 }
 
 
@@ -21,11 +21,13 @@ void AMyPickup_Health::Interact_Implementation(APawn* InstigatorPawn)
 	// 玩家是否满血
 	if (ensure(AttributeComp) && !AttributeComp->IsFullHealth())
 	{
-		//如果没有满血，则恢复到满血
-		if (AttributeComp->ApplyHealthChange(this, AttributeComp->GetHealthMax()))
+		if (AMyPlayerState* PS = InstigatorPawn->GetPlayerState<AMyPlayerState>())
 		{
-			//隐藏生命药水并启动其重生计时器
-			HideAndCooldownPickup();
+			// 如果玩家的 Credits 足够支付 Pickup_Health 的花费，则启用 Pickup，并扣除 Credits
+			if (PS->RemoveCredits(CreditCost) && AttributeComp->ApplyHealthChange(this, AttributeComp->GetHealthMax()))
+			{
+				HideAndCooldownPickup();
+			}
 		}	
 	}
 }

@@ -8,7 +8,7 @@
 UMyAction_ProjectileAttack::UMyAction_ProjectileAttack()
 {
 	HandSocketName = "Muzzle_01";
-	AttackAnimDelay = 0.5f;
+	AttackAnimDelay = 0.2f;
 }
 
 //实现攻击能力的逻辑

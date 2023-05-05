@@ -43,19 +43,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	int32 CreditsPerKill;
 
-	//生成拾取物的EQS查询
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	UEnvQuery* PickupSpawnQuery;
 
-	//拾取物类数组
+	/* All power-up classes used to spawn with EQS at match start */
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	TArray<TSubclassOf<AActor>> PickupClasses;
 
-	//拾取物之间的间距
+	/* Distance required between power-up spawn locations */
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	float RequiredPickupDistance;
 
-	//拾取物数量上限
+	/* Amount of powerups to spawn during match start */
 	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
 	int32 DesiredPickupCount;
 

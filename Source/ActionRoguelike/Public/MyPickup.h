@@ -20,7 +20,7 @@ public:
 protected:
 	
 	//用于处理道具的碰撞和交互
-	UPROPERTY(VisibleAnywhere, Category = "Component")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComp;
 
 	//用于渲染道具的外观
@@ -28,7 +28,7 @@ protected:
 	UStaticMeshComponent* MeshComp;
 	
 	//道具重生的时间间隔
-	UPROPERTY(EditAnywhere, Category = "PowerUp")
+	UPROPERTY(EditAnywhere, Category = "Pickups")
 	float RespawnTime;
 
 	//用于管理物品重生的定时器

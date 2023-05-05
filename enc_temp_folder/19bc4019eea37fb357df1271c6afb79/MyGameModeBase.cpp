@@ -31,10 +31,10 @@ void AMyGameModeBase::StartPlay()
 	//设置了一个定时器TimerHandle_SpawnBots，定时调用SpawnBotTimerElapsed()函数，时间间隔为SpawnTimerInterval秒，循环执行
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AMyGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 		
-	// 确保至少有一个掉落物类
+	// Make sure we have assigned at least one power-up class
 	if (ensure(PickupClasses.Num() > 0))
 	{
-		// 运行环境查询系统（EQS）来查找潜在的掉落物生成位置
+		// Run EQS to find potential power-up spawn locations
 		UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, PickupSpawnQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
 		if (ensure(QueryInstance))
 		{
@@ -42,6 +42,7 @@ void AMyGameModeBase::StartPlay()
 		}
 	}
 }
+
 
 void AMyGameModeBase::SpawnBotTimerElapsed()
 {
@@ -116,6 +117,8 @@ void AMyGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 	if (Locations.IsValidIndex(0))
 	{
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+
+		// Track all the used spawn locations
 		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
 	}
 }
@@ -123,28 +126,29 @@ void AMyGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 
 void AMyGameModeBase::OnPickupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
-	 // 如果 EQS 查询失败，打印警告日志并退出函数
 	if (QueryStatus != EEnvQueryStatus::Success)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query Failed!"));
 		return;
 	}
-	// 获取 EQS 查询结果中的所有位置
+
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
-	// 用于记录已使用的位置，便于后面检查位置间距
+
+	// Keep used locations to easily check distance between points
 	TArray<FVector> UsedLocations;
-	//道具数量
+
 	int32 SpawnCounter = 0;
-	// 如果还没有生成足够数量的道具且仍有可用位置，则继续生成道具
+	// Break out if we reached the desired count or if we have no more potential positions remaining
 	while (SpawnCounter < DesiredPickupCount && Locations.Num() > 0)
 	{
-		// 从剩余的位置中随机选取一个位置
+		// Pick a random location from remaining points.
 		int32 RandomLocationIndex = FMath::RandRange(0, Locations.Num() - 1);
+
 		FVector PickedLocation = Locations[RandomLocationIndex];
-		// 将已选位置从数组中删除，避免重复选取
+		// Remove to avoid picking again
 		Locations.RemoveAt(RandomLocationIndex);
 
-		// 检查位置间距是否符合要求
+		// Check minimum distance requirement
 		bool bValidLocation = true;
 		for (FVector OtherLocation : UsedLocations)
 		{
@@ -152,21 +156,28 @@ void AMyGameModeBase::OnPickupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrap
 
 			if (DistanceTo < RequiredPickupDistance)
 			{
+				// Show skipped locations due to distance
+				//DrawDebugSphere(GetWorld(), PickedLocation, 50.0f, 20, FColor::Red, false, 10.0f);
+
+				// too close, skip to next attempt
 				bValidLocation = false;
 				break;
 			}
 		}
-		// 如果位置间距不符合要求，跳过该位置
+
+		// Failed the distance test
 		if (!bValidLocation)
 		{
 			continue;
 		}
-		// 随机选取一种道具类别
+
+		// Pick a random powerup-class
 		int32 RandomClassIndex = FMath::RandRange(0,PickupClasses.Num() - 1);
 		TSubclassOf<AActor> RandomPickupClass = PickupClasses[RandomClassIndex];
-		// 在随机位置生成道具
+
 		GetWorld()->SpawnActor<AActor>(RandomPickupClass, PickedLocation, FRotator::ZeroRotator);
-		// 记录该位置，便于后面检查位置间距
+
+		// Keep for distance checks
 		UsedLocations.Add(PickedLocation);
 		SpawnCounter++;
 	}
