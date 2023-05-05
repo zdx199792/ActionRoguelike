@@ -16,7 +16,7 @@ void UMyActionComponent::BeginPlay()
 	// 遍历 DefaultActions 数组，将其中的每个能力添加到 Actions 数组中
 	for (TSubclassOf<UMyAction> ActionClass : DefaultActions)
 	{
-		AddAction(ActionClass);
+		AddAction(GetOwner(), ActionClass);
 	}
 }
 
@@ -28,7 +28,7 @@ void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 }
 
 // 添加动作
-void UMyActionComponent::AddAction(TSubclassOf<UMyAction> ActionClass)
+void UMyActionComponent::AddAction(AActor* Instigator, TSubclassOf<UMyAction> ActionClass)
 {
 	if (!ensure(ActionClass))
 	{
@@ -39,9 +39,23 @@ void UMyActionComponent::AddAction(TSubclassOf<UMyAction> ActionClass)
 	if (ensure(NewAction))
 	{
 		Actions.Add(NewAction);
+		// 检查新添加的动作是否需要自动启动，如果需要，并且满足启动条件，就调用 StartAction 函数来启动该动作
+		if (NewAction->bAutoStart && ensure(NewAction->CanStart(Instigator)))
+		{
+			NewAction->StartAction(Instigator);
+		}
 	}
 }
-
+void UMyActionComponent::RemoveAction(UMyAction* ActionToRemove)
+{
+	// 检查 ActionToRemove 是否存在且未运行
+	if (!ensure(ActionToRemove && !ActionToRemove->IsRunning()))
+	{
+		return;
+	}
+	// 从 Actions 数组中移除 ActionToRemove
+	Actions.Remove(ActionToRemove);
+}
 //根据名称启动一个动作
 bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {

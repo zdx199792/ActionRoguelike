@@ -26,7 +26,7 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
-
+	
 	bool bIsRunning;
 public:
 
@@ -41,7 +41,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	bool CanStart(AActor* Instigator);
-	/* Action nickname to start/stop without a reference to the object */
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
 

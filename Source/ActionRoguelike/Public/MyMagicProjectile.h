@@ -11,7 +11,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
-
+class UMyActionEffect;
 UCLASS()
 class ACTIONROGUELIKE_API AMyMagicProjectile : public AMyProjectileBase
 {
@@ -27,6 +27,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DamageAmount;
+		
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf<UMyActionEffect> BurningActionClass;
 
 	UFUNCTION()
 	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

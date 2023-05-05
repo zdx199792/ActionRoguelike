@@ -8,6 +8,7 @@
 #include "MyAttributeComponent.h"
 #include "MyGameplayFunctionLibrary.h"
 #include "MyActionComponent.h"
+#include "MyActionEffect.h"
 // Sets default values
 AMyMagicProjectile::AMyMagicProjectile()
 {
@@ -20,7 +21,7 @@ void AMyMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 {
     // 如果重叠的物体不是发射该魔法弹道的角色本身
 	if (OtherActor && OtherActor != GetInstigator())
-	{        
+	{			
         // 查找该物体是否具有 UMyActionComponent 组件，并且 ActiveGameplayTags 是否包含 ParryTag 标签
 		UMyActionComponent* ActionComp = Cast<UMyActionComponent>(OtherActor->GetComponentByClass(UMyActionComponent::StaticClass()));
 		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
@@ -36,6 +37,10 @@ void AMyMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 		if (UMyGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
+			if (ActionComp && BurningActionClass && HasAuthority())
+			{
+				ActionComp->AddAction(GetInstigator(), BurningActionClass);
+			}
 		}
 	}
 }
