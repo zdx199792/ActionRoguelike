@@ -61,7 +61,6 @@ void USInteractionComponent::FindBestInteractable()
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			// 如果HitActor可以被交互，令FocusedActor为当前HitActor
 			if (HitActor->Implements<USInteractionInterface>())
 			{
 				FocusedActor = HitActor;
@@ -107,6 +106,8 @@ void USInteractionComponent::PrimaryInteract()
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No Focus Actor to interact.");
 		return;
 	}
+
 	APawn* MyPawn = Cast<APawn>(GetOwner());
+
 	ISInteractionInterface::Execute_Interact(FocusedActor, MyPawn);
 }
