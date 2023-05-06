@@ -17,6 +17,10 @@ public:
     void PrimaryInteract();
 protected:
     virtual void BeginPlay() override;
+        
+    // 在服务器上执行的RPC函数，用于客户端请求进行交互
+    UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocus);
     // 查找最佳可交互对象
     void FindBestInteractable();
     // 当前焦点对象

@@ -5,6 +5,7 @@
 #include "SInteractionInterface.h"
 #include "DrawDebugHelpers.h"
 #include "MyWorldUserWidget.h"
+#include "Kismet/GameplayStatics.h"
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
 USInteractionComponent::USInteractionComponent()
@@ -23,7 +24,11 @@ void USInteractionComponent::BeginPlay()
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	FindBestInteractable();
+	APawn* MyPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (MyPawn->IsLocallyControlled())
+	{
+		FindBestInteractable();
+	}
 }
 
 // 查找最佳可交互对象
@@ -99,14 +104,22 @@ void USInteractionComponent::FindBestInteractable()
 		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 	}
 }
-
+// 定义主动交互函数，调用ServerInteract函数进行交互
 void USInteractionComponent::PrimaryInteract()
 {
-	if (FocusedActor == nullptr)
+	// 发送RPC调用请求
+	ServerInteract(FocusedActor);
+}
+// 定义在服务器上执行的RPC函数
+void USInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
+{
+	// 检查是否选中了交互对象
+	if (InFocus == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No Focus Actor to interact.");
 		return;
 	}
+	// 获取拥有该组件的Actor对象所属的Pawn对象
 	APawn* MyPawn = Cast<APawn>(GetOwner());
-	ISInteractionInterface::Execute_Interact(FocusedActor, MyPawn);
+	ISInteractionInterface::Execute_Interact(InFocus, MyPawn);
 }
