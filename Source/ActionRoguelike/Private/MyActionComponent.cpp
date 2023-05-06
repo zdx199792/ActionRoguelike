@@ -8,6 +8,7 @@
 UMyActionComponent::UMyActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UMyActionComponent::BeginPlay()
@@ -72,6 +73,11 @@ bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FailedMsg);
 				continue;
 			}
+			// 如果当前组件不在服务器上，向服务器发送 RPC 启动动作
+			if (!GetOwner()->HasAuthority())
+			{
+				ServerStartAction(Instigator, ActionName);
+			}
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -95,4 +101,9 @@ bool UMyActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		}
 	}
 	return false;
+}
+// 实现服务器 RPC 函数 ServerStartAction，调用 StartActionByName 启动动作
+void UMyActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
 }

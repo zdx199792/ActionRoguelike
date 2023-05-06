@@ -29,12 +29,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const;
 protected:
-	//血量
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	//血量，Replicated指定这两个属性需要在客户端和服务器之间进行同步
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float MaxHealth;
+	
+	// 声明一个多播的RPC函数，用于同步生命值的改变
+    // NetMulticast指定这个函数需要在客户端和服务器之间进行广播，Reliable指定需要保证可靠性
+	UFUNCTION(NetMulticast, Reliable) // @FIXME: mark as unreliable once we moved the 'state' our of scharacter
+	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 
 public:	
 

@@ -3,6 +3,7 @@
 
 #include "MyAttributeComponent.h"
 #include "MyGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
@@ -11,6 +12,8 @@ UMyAttributeComponent::UMyAttributeComponent()
 {
 	MaxHealth = 100;
 	Health = MaxHealth;
+	//用于设置组件的默认Replication行为
+	SetIsReplicatedByDefault(true);
 }
 //玩家是否满血
 bool UMyAttributeComponent::IsFullHealth() const
@@ -42,8 +45,14 @@ bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
 	//计算实际的生命值变化量
 	float ActualDelta = Health - OldHealth;
-	OnHealthChange.Broadcast(InstigatorActor,this, Health,ActualDelta);
+	// 广播触发委托
+	//OnHealthChange.Broadcast(InstigatorActor,this, Health,ActualDelta);
 
+	//如果实际变化量不为0，则通知客户端
+	if (ActualDelta != 0.0f)
+	{
+		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+	}
 	if (ActualDelta < 0.0f && Health == 0.0f)
 	{
 		AMyGameModeBase* GM = GetWorld()->GetAuthGameMode<AMyGameModeBase>();
@@ -52,7 +61,6 @@ bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 			GM->OnActorKilled(GetOwner(), InstigatorActor);
 		}
 	}
-
 	return ActualDelta != 0;
 }
 
@@ -88,4 +96,19 @@ bool UMyAttributeComponent::Kill(AActor* InstigatorActor)
 float UMyAttributeComponent::GetHealth() const
 {
 	return Health;
+}
+//多播函数，用于通知客户端生命值发生变化
+void UMyAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	//广播生命值变化事件
+	OnHealthChange.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}
+//重写父类的函数，用于设置该组件可以被网络同步
+void UMyAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//声明要同步的属性
+	DOREPLIFETIME(UMyAttributeComponent, Health);
+	DOREPLIFETIME(UMyAttributeComponent, MaxHealth);
+	//DOREPLIFETIME_CONDITION(UMyAttributeComponent, MaxHealth, COND_InitialOnly);
 }
