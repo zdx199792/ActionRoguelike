@@ -57,6 +57,18 @@ void UMyActionComponent::RemoveAction(UMyAction* ActionToRemove)
 	// 从 Actions 数组中移除 ActionToRemove
 	Actions.Remove(ActionToRemove);
 }
+
+UMyAction* UMyActionComponent::GetAction(TSubclassOf<UMyAction> ActionClass) const
+{
+	for (UMyAction* Action : Actions)
+	{
+		if (Action && Action->IsA(ActionClass))
+		{
+			return Action;
+		}
+	}
+	return nullptr;
+}
 //根据名称启动一个动作
 bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {

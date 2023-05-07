@@ -12,6 +12,9 @@ UMyAttributeComponent::UMyAttributeComponent()
 {
 	MaxHealth = 100;
 	Health = MaxHealth;
+
+	MaxRage = 100;
+	Rage = 0;
 	//用于设置组件的默认Replication行为
 	SetIsReplicatedByDefault(true);
 }
@@ -63,7 +66,23 @@ bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	}
 	return ActualDelta != 0;
 }
-
+bool UMyAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta)
+{
+	float OldRage = Rage;
+	//将 Rage 的值限制在 0 到 MaxRage 之间
+	Rage = FMath::Clamp(Rage + Delta, 0.0f, MaxRage);
+	//计算实际的Rage变化量
+	float ActualDelta = Rage - OldRage;
+	if (ActualDelta != 0.0f) 
+	{
+		OnRageChange.Broadcast(InstigatorActor,this, Rage,ActualDelta);
+	}
+	return ActualDelta != 0;
+}
+float UMyAttributeComponent::GetRage() const
+{
+	return Rage;
+}
 bool UMyAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
@@ -110,5 +129,7 @@ void UMyAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	//声明要同步的属性
 	DOREPLIFETIME(UMyAttributeComponent, Health);
 	DOREPLIFETIME(UMyAttributeComponent, MaxHealth);
+	DOREPLIFETIME(UMyAttributeComponent, Rage);
+	DOREPLIFETIME(UMyAttributeComponent, MaxRage);
 	//DOREPLIFETIME_CONDITION(UMyAttributeComponent, MaxHealth, COND_InitialOnly);
 }

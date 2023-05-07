@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MyAttributeComponent.generated.h"
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChange, AActor*, InstigatorActor, UMyAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, UMyAttributeComponent*, OwningComp, float, NewRage, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONROGUELIKE_API UMyAttributeComponent : public UActorComponent
@@ -36,6 +36,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float MaxHealth;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float Rage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float MaxRage;
 	// 声明一个多播的RPC函数，用于同步生命值的改变
     // NetMulticast指定这个函数需要在客户端和服务器之间进行广播，Reliable指定需要保证可靠性
 	UFUNCTION(NetMulticast, Reliable) // @FIXME: mark as unreliable once we moved the 'state' our of scharacter
@@ -46,10 +51,15 @@ public:
 	//多播委托FOnHealthChange
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChange OnHealthChange;
-
+	//多播委托FOnRageChanged
+	UPROPERTY(BlueprintAssignable)
+	FOnRageChanged OnRageChange;
 	//对血量的改变
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
+	//对愤怒值的改变
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	bool ApplyRageChange(AActor* InstigatorActor, float Delta);
 
 	//判断玩家是否存活
 	UFUNCTION(BlueprintCallable)
@@ -60,5 +70,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthMax() const;
-
+	
+	UFUNCTION(BlueprintCallable)
+	float GetRage() const;
 };

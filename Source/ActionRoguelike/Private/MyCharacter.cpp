@@ -141,6 +141,7 @@ void AMyCharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponen
 	if (Delta < 0.0f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		AttributeComp->ApplyRageChange(InstigatorActor, -Delta);
 	}
 
 	//血量为0时，禁止玩家输入
