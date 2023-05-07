@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyAction_ProjectileAttack.h"
+#include "Actions/MyAction_ProjectileAttack.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 

@@ -1,4 +1,4 @@
-#include "MyPickup.h"
+#include "Pickups/MyPickup.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Net/UnrealNetwork.h"

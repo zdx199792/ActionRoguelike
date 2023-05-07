@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyActionEffect.h"
-#include "MyActionComponent.h"
+#include "Actions/MyActionEffect.h"
+#include "Actions/MyActionComponent.h"
 
 UMyActionEffect::UMyActionEffect()
 {

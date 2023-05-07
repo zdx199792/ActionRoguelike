@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Pickup/MyPickup_Action.h"
-#include "MyActionComponent.h"
-#include "MyAction.h"
+#include "Pickups/MyPickup_Action.h"
+#include "Actions/MyActionComponent.h"
+#include "Actions/MyAction.h"
 
 void AMyPickup_Action::Interact_Implementation(APawn* InstigatorPawn)
 {

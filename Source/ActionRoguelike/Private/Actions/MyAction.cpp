@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyAction.h"
-#include "MyActionComponent.h"
+#include "Actions/MyAction.h"
+#include "Actions/MyActionComponent.h"
 
 void UMyAction::StartAction_Implementation(AActor* Instigator)
 {

@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyMagicProjectile.h"
+#include "Projectiles/MyMagicProjectile.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "MyAttributeComponent.h"
 #include "MyGameplayFunctionLibrary.h"
-#include "MyActionComponent.h"
-#include "MyActionEffect.h"
+#include "Actions/MyActionComponent.h"
+#include "Actions/MyActionEffect.h"
 // Sets default values
 AMyMagicProjectile::AMyMagicProjectile()
 {

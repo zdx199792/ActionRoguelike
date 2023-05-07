@@ -11,7 +11,7 @@
 #include "MyWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "MyActionComponent.h"
+#include "Actions/MyActionComponent.h"
 
 // Sets default values
 AMyAICharacter::AMyAICharacter()

@@ -3,7 +3,7 @@
 
 #include "Actions/MyActionEffect_Thorns.h"
 #include "MyAttributeComponent.h"
-#include "MyActionComponent.h"
+#include "Actions/MyActionComponent.h"
 #include "MyGameplayFunctionLibrary.h"
 
 

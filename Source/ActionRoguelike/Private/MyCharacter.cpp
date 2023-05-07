@@ -10,7 +10,7 @@
 #include "MyAttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
-#include "MyActionComponent.h"
+#include "Actions/MyActionComponent.h"
 // Sets default values
 AMyCharacter::AMyCharacter()
 {

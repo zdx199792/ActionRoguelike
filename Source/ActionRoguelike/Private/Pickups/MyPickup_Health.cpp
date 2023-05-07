@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyPickup_Health.h"
+#include "Pickups/MyPickup_Health.h"
 #include "MyAttributeComponent.h"
 #include "MyPlayerState.h"
 
