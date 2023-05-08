@@ -16,6 +16,9 @@ class ACTIONROGUELIKE_API UMyAction : public UObject
 {
 	GENERATED_BODY()
 protected:
+	UPROPERTY(Replicated)
+	UMyActionComponent* ActionComp;
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UMyActionComponent* GetOwningComponent() const;
 
@@ -26,9 +29,14 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
-	
+	//bIsRunning属性将进行网络复制，当该属性发生变化时（由服务器接收到更新），将调用名为OnRep_IsRunning的函数
+	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
 	bool bIsRunning;
+
+	UFUNCTION()
+	void OnRep_IsRunning();
 public:
+	void Initialize(UMyActionComponent* NewActionComp);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StartAction(AActor* Instigator);
@@ -49,4 +57,9 @@ public:
 	FName ActionName;
 
 	UWorld* GetWorld() const override;
+	//判断对象是否支持网络复制
+	bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
 };
