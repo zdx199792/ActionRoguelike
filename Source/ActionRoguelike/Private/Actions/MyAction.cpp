@@ -14,26 +14,28 @@ void UMyAction::Initialize(UMyActionComponent* NewActionComp)
 void UMyAction::StartAction_Implementation(AActor* Instigator)
 {
 	//UE_LOG(LogTemp, Log, TEXT("Running: %s"), *GetNameSafe(this));
-	LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);	
+	//LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);	
 	// 将GrantsTags添加到拥有UMyAction实例的角色中
 	UMyActionComponent* Comp = GetOwningComponent();	
 	Comp->ActiveGameplayTags.AppendTags(GrantsTags);
 	
 	// 将bIsRunning设置为true，表示UMyAction正在运行
-	bIsRunning = true;
+	RepData.bIsRunning = true;
+	RepData.Instigator = Instigator;
 }
 
 
 void UMyAction::StopAction_Implementation(AActor* Instigator)
 {
 	/*UE_LOG(LogTemp, Log, TEXT("Stopped: %s"), *GetNameSafe(this));*/
-	LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
+	//LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
 	//ensureAlways(bIsRunning);
 	// 从拥有UMyAction实例的角色中移除GrantsTags
 	UMyActionComponent* Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.RemoveTags(GrantsTags);
 	// 将bIsRunning设置为false，表示UMyAction已停止运行
-	bIsRunning = false;
+	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 //用于检查UMyAction是否可以开始。如果UMyAction正在运行或拥有UMyAction实例的角色有被阻止启动的标签，则返回false，否则返回true。
 bool UMyAction::CanStart_Implementation(AActor* Instigator)
@@ -76,18 +78,19 @@ UMyActionComponent* UMyAction::GetOwningComponent() const
 
 bool UMyAction::IsRunning() const
 {
-	return bIsRunning;
+	return RepData.bIsRunning;
 }
-//希望服务器能够告诉所有的客户端
-void UMyAction::OnRep_IsRunning()
-{
-	if (bIsRunning)
+//被服务器告知RepData属性变化后的回调函数，根据RepData.bIsRunning来更新是否执行该MyAction动作
+void UMyAction::OnRep_RepData()
+{    
+	//如果RepData.bIsRunning为真，则会调用该MyAction的StartAction从而更新本地客户端这个MyAction的动作
+	if (RepData.bIsRunning)
 	{
-		StartAction(nullptr);
+		StartAction(RepData.Instigator);
 	}
 	else
 	{
-		StopAction(nullptr);
+		StopAction(RepData.Instigator);
 	}
 }
 
@@ -95,6 +98,6 @@ void UMyAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UMyAction, bIsRunning);
+	DOREPLIFETIME(UMyAction, RepData);
 	DOREPLIFETIME(UMyAction, ActionComp);
 }

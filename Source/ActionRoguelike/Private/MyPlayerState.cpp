@@ -6,7 +6,7 @@
 void AMyPlayerState::AddCredits(int32 Delta)
 {
     // 防止用户添加负数或零
-    if (!ensure(Delta > 0.0f))
+    if (!ensure(Delta >= 0.0f))
     {
         return;
     }
@@ -19,7 +19,7 @@ void AMyPlayerState::AddCredits(int32 Delta)
 bool AMyPlayerState::RemoveCredits(int32 Delta)
 {
     // 防止用户添加或减去负数或零
-    if (!ensure(Delta > 0.0f))
+    if (!ensure(Delta >= 0.0f))
     {
         return false;
     }

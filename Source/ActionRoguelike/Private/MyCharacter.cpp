@@ -149,6 +149,7 @@ void AMyCharacter::OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponen
 	{
 		APlayerController* MyController = Cast<APlayerController>(GetController());
 		DisableInput(MyController);
+		SetLifeSpan(3.0f);
 	}
 }
 

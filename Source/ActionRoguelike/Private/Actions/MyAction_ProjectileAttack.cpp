@@ -23,11 +23,16 @@ void UMyAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 		Character->PlayAnimMontage(AttackAnim);
 		// 在手部 socket 上播放粒子特效
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-		// 创建一个定时器，在攻击动画延迟之后调用 AttackDelay_Elapsed 函数
-		FTimerHandle TimerHandle_AttackDelay;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		
+		//只在服务器端调用AttackDelay_Elapsed产生抛射物，通过复制同步到客户端
+		if (Character->HasAuthority()) 
+		{
+			// 创建一个定时器，在攻击动画延迟之后调用 AttackDelay_Elapsed 函数
+			FTimerHandle TimerHandle_AttackDelay;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		}
 	}
 }
 

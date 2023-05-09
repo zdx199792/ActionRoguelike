@@ -40,22 +40,22 @@ void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		// 根据UMyAction对象是否正在运行，设置文本颜色为蓝色或白色
 		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
 
-	    // 使用格式化字符串（Printf）创建一个包含UMyAction对象信息的消息
-		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s : IsRunning: %s : Outer: %s"),
-			*GetNameSafe(GetOwner()),							// GetOwner()的安全名称
-			*Action->ActionName.ToString(),						// Action的名称
-			Action->IsRunning() ? TEXT("true") : TEXT("false"), // Action是否正在运行（true或false）
-			*GetNameSafe(Action->GetOuter()));					// Action->GetOuter()的安全名称
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(Action));
 		// 调用之前定义的LogOnScreen函数，将ActionMsg显示在屏幕上，颜色为TextColor，持续时间为0秒
 		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
 	}
 }
 
-// 添加动作
+// 添加Action
 void UMyActionComponent::AddAction(AActor* Instigator, TSubclassOf<UMyAction> ActionClass)
 {
 	if (!ensure(ActionClass))
 	{
+		return;
+	}
+	if (!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client attempting to AddAction. [Class: %s]"), *GetNameSafe(ActionClass));
 		return;
 	}
 	// 创建一个新的动作对象添加到 Actions 数组中
@@ -131,6 +131,11 @@ bool UMyActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		{
 			if (Action->IsRunning())
 			{
+				// 如果当前组件不在服务器上，向服务器发送 RPC 启动动作
+				if (!GetOwner()->HasAuthority())
+				{
+					ServerStopAction(Instigator, ActionName);
+				}
 				Action->StopAction(Instigator);
 				return true;
 			}
@@ -142,6 +147,12 @@ bool UMyActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 void UMyActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
 {
 	StartActionByName(Instigator, ActionName);
+}
+
+// 实现服务器 RPC 函数 ServerStopAction，调用 StopActionByName 启动动作
+void UMyActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StopActionByName(Instigator, ActionName);
 }
 /*ReplicateSubobjects是一个虚函数，用于在Unreal Engine中处理子对象的网络复制。
 当有一个继承自AActor或UActorComponent的类，并且该类具有需要在网络中进行复制的子对象时，

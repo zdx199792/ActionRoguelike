@@ -11,6 +11,19 @@ class UWorld;
 /**
  * 
  */
+USTRUCT()
+struct FActionRepData
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	bool bIsRunning;
+
+	UPROPERTY()
+	AActor* Instigator;
+};
 UCLASS(Blueprintable)	// 声明UMyAction为一个可蓝图化的类，用于UE蓝图系统
 class ACTIONROGUELIKE_API UMyAction : public UObject
 {
@@ -29,12 +42,12 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
-	//bIsRunning属性将进行网络复制，当该属性发生变化时（由服务器接收到更新），将调用名为OnRep_IsRunning的函数
-	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
-	bool bIsRunning;
+	//RepData属性将进行网络复制，当该属性发生变化时（由服务器接收到更新），将调用名为OnRep_RepData的函数
+	UPROPERTY(ReplicatedUsing="OnRep_RepData")
+	FActionRepData RepData;
 
 	UFUNCTION()
-	void OnRep_IsRunning();
+	void OnRep_RepData();
 public:
 	void Initialize(UMyActionComponent* NewActionComp);
 

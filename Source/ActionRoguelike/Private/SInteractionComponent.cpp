@@ -24,8 +24,8 @@ void USInteractionComponent::BeginPlay()
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	APawn* MyPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (MyPawn->IsLocallyControlled())
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+	if (MyPawn && MyPawn->IsLocallyControlled())
 	{
 		FindBestInteractable();
 	}

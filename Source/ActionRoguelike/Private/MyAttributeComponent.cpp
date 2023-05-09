@@ -44,24 +44,26 @@ bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	}
 
 	float OldHealth = Health;
-	//将 Health 的值限制在 0 到 MaxHealth 之间
-	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
-	//计算实际的生命值变化量
-	float ActualDelta = Health - OldHealth;
-	// 广播触发委托
-	//OnHealthChange.Broadcast(InstigatorActor,this, Health,ActualDelta);
-
-	//如果实际变化量不为0，则通知客户端
-	if (ActualDelta != 0.0f)
+	float NewHealth = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
+	float ActualDelta = NewHealth - OldHealth;
+	//只在服务器端进行伤害计算
+	if (GetOwner()->HasAuthority())
 	{
-		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
-	if (ActualDelta < 0.0f && Health == 0.0f)
-	{
-		AMyGameModeBase* GM = GetWorld()->GetAuthGameMode<AMyGameModeBase>();
-		if (GM)
+		Health = NewHealth;
+		if (ActualDelta != 0.0f)
 		{
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			//如果实际变化量不为0，则通知客户端
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		// 死亡
+		if (ActualDelta < 0.0f && Health == 0.0f)
+		{
+			AMyGameModeBase* GM = GetWorld()->GetAuthGameMode<AMyGameModeBase>();
+			if (GM)
+			{
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 	return ActualDelta != 0;

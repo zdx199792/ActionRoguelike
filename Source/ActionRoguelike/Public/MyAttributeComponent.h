@@ -5,9 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MyAttributeComponent.generated.h"
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChange, AActor*, InstigatorActor, UMyAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, UMyAttributeComponent*, OwningComp, float, NewRage, float, Delta);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, InstigatorActor, UMyAttributeComponent*, OwningComp, float, NewValue, float, Delta);
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONROGUELIKE_API UMyAttributeComponent : public UActorComponent
 {
@@ -50,10 +49,10 @@ public:
 
 	//多播委托FOnHealthChange
 	UPROPERTY(BlueprintAssignable)
-	FOnHealthChange OnHealthChange;
+	FOnAttributeChanged OnHealthChange;
 	//多播委托FOnRageChanged
 	UPROPERTY(BlueprintAssignable)
-	FOnRageChanged OnRageChange;
+	FOnAttributeChanged OnRageChange;
 	//对血量的改变
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
