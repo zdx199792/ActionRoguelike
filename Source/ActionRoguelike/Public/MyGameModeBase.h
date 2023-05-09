@@ -10,6 +10,7 @@
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
 class UCurveFloat;
+class UMySaveGame;
 /**
  * 
  */
@@ -19,7 +20,11 @@ class ACTIONROGUELIKE_API AMyGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 protected:
-
+	// 用于保存游戏存档的槽位名称
+	FString SlotName;
+	// 当前的游戏存档对象
+	UPROPERTY()
+	UMySaveGame* CurrentSaveGame;
 	//指定要生成的AI角色的类
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
@@ -79,6 +84,16 @@ public:
 
 	UFUNCTION(Exec)
 	void KillAll();
+	// 重写AGameModeBase的InitGame方法，用于游戏初始化
+	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	// 将游戏数据写入存档
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+	// 加载游戏存档的函数
+	void LoadSaveGame();
+	//处理新玩家加入游戏的逻辑。当新玩家连接到游戏服务器时，服务器会调用此函数
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 };

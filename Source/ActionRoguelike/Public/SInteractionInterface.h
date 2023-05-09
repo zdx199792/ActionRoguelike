@@ -25,4 +25,7 @@ public:
 	//交互功能函数，参数表示交互的对象
 	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
+	/* Called after the Actor state was restored from a SaveGame file. */
+	UFUNCTION(BlueprintNativeEvent)
+	void OnActorLoaded();
 };

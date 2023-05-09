@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "MyPlayerState.generated.h"
-
+class UMySaveGame;
 //使用基于事件来更新UI要优于直接将Credit绑定到UI上，后者会每一帧调用
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, AMyPlayerState*, PlayerState, int32, NewCredits, int32, Delta);
 UCLASS()
@@ -24,7 +24,17 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerState|Credits")
 	bool RemoveCredits(int32 Delta);
+		
+	UFUNCTION(BlueprintCallable, Category = "PlayerState|Credits")
+	int32 GetCredits() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnCreditsChanged OnCreditsChanged;
+
+	//保存玩家状态
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(UMySaveGame* SaveObject);
+	//加载玩家状态
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(UMySaveGame* SaveObject);
 };

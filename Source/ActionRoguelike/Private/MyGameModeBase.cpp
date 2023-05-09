@@ -11,7 +11,11 @@
 #include "MyCharacter.h"
 #include "MyPlayerState.h"
 #include "DrawDebugHelpers.h"
-
+#include "MySaveGame.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameStateBase.h"
+#include "SInteractionInterface.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 AMyGameModeBase::AMyGameModeBase()
@@ -23,6 +27,14 @@ AMyGameModeBase::AMyGameModeBase()
 	RequiredPickupDistance = 2000;
 
 	PlayerStateClass = AMyPlayerState::StaticClass();
+	SlotName = "SaveGame01";
+}
+
+void AMyGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	// 在游戏初始化时加载游戏存档
+	LoadSaveGame();
 }
 
 void AMyGameModeBase::StartPlay()
@@ -204,5 +216,115 @@ void AMyGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 		{
 			PS->AddCredits(CreditsPerKill);
 		}
+	}
+}
+
+void AMyGameModeBase::WriteSaveGame()
+{
+	// 遍历GameState中的PlayerArray
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
+	{
+		AMyPlayerState* PS = Cast<AMyPlayerState>(GameState->PlayerArray[i]);
+		if (PS)
+		{
+			// 如果成功获取到PlayerState，调用PS的SavePlayerState方法，传入当前的SaveGame对象
+			PS->SavePlayerState(CurrentSaveGame);
+			break; // 目前只支持单人游戏，所以处理一个玩家后就退出循环
+		}
+	}
+	// 清空SavedActors数组，避免受先前保存的影响
+	CurrentSaveGame->SavedActors.Empty();
+	// 遍历整个世界的Actor
+	for (FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		// 只关心实现USInteractionInterface接口的"游戏内Actor"
+		if (!Actor->Implements<USInteractionInterface>())
+		{
+			continue;
+		}
+		// 为每个Actor创建一个FActorSaveData实例
+		FActorSaveData ActorData;
+		ActorData.ActorName = Actor->GetName();
+		ActorData.Transform = Actor->GetActorTransform();
+				
+		// 将ActorData的ByteData数组传递给内存缓冲区MemWriter
+		FMemoryWriter MemWriter(ActorData.ByteData);
+		// 创建一个以对象和名称为字符串的代理存档
+		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+		// 表示当前的反序列化操作是为了加载游戏
+		Ar.ArIsSaveGame = true;
+		// 将带有SaveGame标签的UPROPERTY转换为二进制数组
+		Actor->Serialize(Ar);
+		// 将ActorData添加到CurrentSaveGame的SavedActors数组中
+		CurrentSaveGame->SavedActors.Add(ActorData);
+	}
+	// 将当前游戏存档对象保存到指定的槽位
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+
+void AMyGameModeBase::LoadSaveGame()
+{
+	// 判断指定槽位是否存在存档
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		// 从指定槽位加载游戏存档
+		CurrentSaveGame = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+		if (CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame Data."));
+			return;
+		}
+		UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data."));
+		// 遍历整个世界的Actor
+		for (FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* Actor = *It;
+			// 只关心实现USInteractionInterface接口的"游戏内Actor"
+			if (!Actor->Implements<USInteractionInterface>())
+			{
+				continue;
+			}
+			// 遍历保存的Actor数据
+			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
+			{
+				// 检查Actor名称是否匹配
+				if (ActorData.ActorName == Actor->GetName())
+				{
+					// 设置Actor的位置、旋转和缩放
+					Actor->SetActorTransform(ActorData.Transform);
+					// 将ActorData的ByteData数组传递给内存缓冲区MemWriter
+					FMemoryReader MemReader(ActorData.ByteData);
+					// 创建一个以对象和名称为字符串的代理存档
+					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+					// 表示当前的反序列化操作是为了加载游戏
+					Ar.ArIsSaveGame = true;
+					// 将带有SaveGame标签的UPROPERTY转换为二进制数组
+					Actor->Serialize(Ar);
+					// 设置Actor的位置、旋转和缩放
+					ISInteractionInterface::Execute_OnActorLoaded(Actor);
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		// 若指定槽位不存在存档，则创建新的存档对象
+		CurrentSaveGame = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+		UE_LOG(LogTemp, Log, TEXT("Created New SaveGame Data."));
+	}
+}
+//处理新玩家加入游戏的逻辑。当新玩家连接到游戏服务器时，服务器会调用此函数
+void AMyGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	// 获取NewPlayer的PlayerState，并存储到PS变量中
+	AMyPlayerState* PS = NewPlayer->GetPlayerState<AMyPlayerState>();
+	if (PS)
+	{
+		//调用PS的LoadPlayerState方法,传入当前的SaveGame对象
+		PS->LoadPlayerState(CurrentSaveGame);
 	}
 }

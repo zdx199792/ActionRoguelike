@@ -29,7 +29,10 @@ void ASTreasureChestItem::Interact_Implementation(APawn* InstigatorPawn)
 	// 本地客户端也要同步宝箱盖子状态
 	OnRep_LidOpened();
 }
-
+void ASTreasureChestItem::OnActorLoaded_Implementation()
+{
+	OnRep_LidOpened();
+}
 void ASTreasureChestItem::OnRep_LidOpened()
 {
 	// 根据盖子状态设置盖子的旋转角度

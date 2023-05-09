@@ -2,7 +2,7 @@
 
 
 #include "MyPlayerState.h"
-
+#include "MySaveGame.h"
 void AMyPlayerState::AddCredits(int32 Delta)
 {
     // 防止用户添加负数或零
@@ -33,4 +33,25 @@ bool AMyPlayerState::RemoveCredits(int32 Delta)
     // 触发 OnCreditsChanged 委托中的事件
     OnCreditsChanged.Broadcast(this, Credits, -Delta);
     return true;
+}
+
+int32 AMyPlayerState::GetCredits() const
+{
+    return Credits;
+}
+void AMyPlayerState::SavePlayerState_Implementation(UMySaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		SaveObject->Credits = Credits;
+	}
+}
+
+
+void AMyPlayerState::LoadPlayerState_Implementation(UMySaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		Credits = SaveObject->Credits;
+	}
 }
