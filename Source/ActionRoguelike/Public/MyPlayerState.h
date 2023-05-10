@@ -14,9 +14,11 @@ class ACTIONROGUELIKE_API AMyPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 protected:
-
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing="OnRep_Credits", Category = "PlayerState|Credits")
 	int32 Credits;
-
+	// OnRep_Credits函数接收一个名为OldCredits的int32类型参数，表示属性的旧值
+	UFUNCTION()
+	void OnRep_Credits(int32 OldCredits);
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerState|Credits") // < Category|SubCategory

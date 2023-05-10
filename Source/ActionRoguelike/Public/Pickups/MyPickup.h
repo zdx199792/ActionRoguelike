@@ -18,7 +18,12 @@ public:
 	AMyPickup();
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 protected:
-	
+    // 使用UPROPERTY声明一个可复制的布尔变量bIsActive，并指定在复制时调用OnRep_IsActive方法
+    UPROPERTY(ReplicatedUsing="OnRep_IsActive")
+    bool bIsActive;
+    // 声明一个UFUNCTION，用于在属性复制时调用
+    UFUNCTION()
+    void OnRep_IsActive();
 	//用于处理道具的碰撞和交互
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComp;

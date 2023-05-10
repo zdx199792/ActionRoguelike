@@ -4,7 +4,7 @@
 #include "MyAttributeComponent.h"
 #include "MyGameModeBase.h"
 #include "Net/UnrealNetwork.h"
-
+#include "../ActionRoguelike.h"
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
 // Sets default values for this component's properties
@@ -18,6 +18,7 @@ UMyAttributeComponent::UMyAttributeComponent()
 	//用于设置组件的默认Replication行为
 	SetIsReplicatedByDefault(true);
 }
+
 //玩家是否满血
 bool UMyAttributeComponent::IsFullHealth() const
 {
@@ -71,13 +72,17 @@ bool UMyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 bool UMyAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta)
 {
 	float OldRage = Rage;
-	//将 Rage 的值限制在 0 到 MaxRage 之间
-	Rage = FMath::Clamp(Rage + Delta, 0.0f, MaxRage);
-	//计算实际的Rage变化量
-	float ActualDelta = Rage - OldRage;
-	if (ActualDelta != 0.0f) 
+	float NewRage = FMath::Clamp(Rage + Delta, 0.0f, MaxRage);
+	float ActualDelta = NewRage - OldRage;
+	if (GetOwner()->HasAuthority())
 	{
-		OnRageChange.Broadcast(InstigatorActor,this, Rage,ActualDelta);
+		Rage = NewRage;
+		if (ActualDelta != 0.0f) 
+		{
+			//OnRageChange.Broadcast(InstigatorActor,this, Rage,ActualDelta);
+			MulticastRageChanged(InstigatorActor, Rage, ActualDelta);
+
+		}
 	}
 	return ActualDelta != 0;
 }
@@ -124,6 +129,12 @@ void UMyAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instig
 	//广播生命值变化事件
 	OnHealthChange.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
+//多播函数，用于通知客户端愤怒值发生变化
+void UMyAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChange.Broadcast(InstigatorActor, this, NewRage, Delta);
+}
+
 //重写父类的函数，用于设置该组件可以被网络同步
 void UMyAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

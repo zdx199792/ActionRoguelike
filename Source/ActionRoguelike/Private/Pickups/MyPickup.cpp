@@ -15,7 +15,7 @@ AMyPickup::AMyPickup()
 	MeshComp->SetupAttachment(RootComponent);
 
 	RespawnTime = 10.0f;
-
+	bIsActive = true;
 	SetReplicates(true);
 }
 
@@ -40,11 +40,26 @@ void AMyPickup::HideAndCooldownPickup()
 	GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &AMyPickup::ShowPickup, RespawnTime);
 }
 
-//用于设置物品的激活状态（是否可交互和渲染）
+// 设置物品拾取的激活状态
 void AMyPickup::SetPickupState(bool bNewIsActive)
 {
-	//设置物品是否可交互
-	SetActorEnableCollision(bNewIsActive);
-	//设置物品是否可渲染
-	RootComponent->SetVisibility(bNewIsActive, true);
+    // 更新激活状态
+    bIsActive = bNewIsActive;
+    // 调用OnRep_IsActive方法，以应用新的激活状态
+    OnRep_IsActive();
+}
+void AMyPickup::OnRep_IsActive()
+{
+    // 根据激活状态设置碰撞检测
+    SetActorEnableCollision(bIsActive);
+    // 设置根组件和所有子组件的可见性
+    RootComponent->SetVisibility(bIsActive, true);
+}
+
+// 获取需要在网络中复制的属性
+void AMyPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    // 添加bIsActive属性以在网络中进行复制
+    DOREPLIFETIME(AMyPickup, bIsActive);
 }

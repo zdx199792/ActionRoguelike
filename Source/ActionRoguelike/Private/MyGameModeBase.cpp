@@ -319,12 +319,12 @@ void AMyGameModeBase::LoadSaveGame()
 //处理新玩家加入游戏的逻辑。当新玩家连接到游戏服务器时，服务器会调用此函数
 void AMyGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 	// 获取NewPlayer的PlayerState，并存储到PS变量中
 	AMyPlayerState* PS = NewPlayer->GetPlayerState<AMyPlayerState>();
-	if (PS)
+	if (ensure(PS))
 	{
 		//调用PS的LoadPlayerState方法,传入当前的SaveGame对象
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }

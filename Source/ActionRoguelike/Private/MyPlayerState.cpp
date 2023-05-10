@@ -3,6 +3,7 @@
 
 #include "MyPlayerState.h"
 #include "MySaveGame.h"
+#include "Net/UnrealNetwork.h"
 void AMyPlayerState::AddCredits(int32 Delta)
 {
     // 防止用户添加负数或零
@@ -52,6 +53,20 @@ void AMyPlayerState::LoadPlayerState_Implementation(UMySaveGame* SaveObject)
 {
 	if (SaveObject)
 	{
-		Credits = SaveObject->Credits;
+		//Credits = SaveObject->Credits;
+		// 因为创建UI的时间推后了，通过AddCredits的方式给PlayerState的Credits赋值，确保积分修改事件触发
+		AddCredits(SaveObject->Credits);
 	}
+}
+
+void AMyPlayerState::OnRep_Credits(int32 OldCredits)
+{
+	OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
+}
+
+void AMyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMyPlayerState, Credits);
 }

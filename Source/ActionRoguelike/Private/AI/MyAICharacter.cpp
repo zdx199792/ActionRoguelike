@@ -47,13 +47,14 @@ void AMyAICharacter::OnPawnSeen(APawn* Pawn)
 	{
 		//更新目标Actor
 		SetTargetActor(Pawn);
-		//创建新的发现提示Widget
-		UMyWorldUserWidget* NewWidget = CreateWidget<UMyWorldUserWidget>(GetWorld(), SpottedWidgetClass);
-		if (NewWidget)
-		{
-			NewWidget->AttachedActor = this;
-			NewWidget->AddToViewport(10);
-		}
+		////创建新的发现提示Widget
+		//UMyWorldUserWidget* NewWidget = CreateWidget<UMyWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		//if (NewWidget)
+		//{
+		//	NewWidget->AttachedActor = this;
+		//	NewWidget->AddToViewport(10);
+		//}
+		MulticastPawnSeen();
 	}
 }
 
@@ -116,4 +117,18 @@ AActor* AMyAICharacter::GetTargetActor() const
 	}
 
 	return nullptr;
+}
+
+void AMyAICharacter::MulticastPawnSeen_Implementation()
+{
+	// 创建一个UMyWorldUserWidget类型的新控件实例
+	UMyWorldUserWidget* NewWidget = CreateWidget<UMyWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+	if (NewWidget)
+	{
+		// 将当前AI角色附加到新创建的控件上
+		NewWidget->AttachedActor = this;
+		// 将新控件添加到视口，并设置其层级为10（高于默认的0）
+		// 这样可以确保新控件位于其他控件的上方，例如，它不会被小兵的血条遮挡
+		NewWidget->AddToViewport(10);
+	}
 }

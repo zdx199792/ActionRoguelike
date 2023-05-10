@@ -54,7 +54,10 @@ protected:
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
-	
+	// RPC函数,在所有连接的客户端上执行
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastPawnSeen();
+
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UMyAttributeComponent* OwningComp, float NewHealth, float Delta);
 

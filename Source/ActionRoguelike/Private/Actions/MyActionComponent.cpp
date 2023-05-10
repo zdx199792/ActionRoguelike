@@ -35,15 +35,15 @@ void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, DebugMsg);
 	
 	// 遍历Actions数组中的每一个UMyAction对象
-	for (UMyAction* Action : Actions)
-	{
-		// 根据UMyAction对象是否正在运行，设置文本颜色为蓝色或白色
-		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+	//for (UMyAction* Action : Actions)
+	//{
+	//	// 根据UMyAction对象是否正在运行，设置文本颜色为蓝色或白色
+	//	FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
 
-		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(Action));
-		// 调用之前定义的LogOnScreen函数，将ActionMsg显示在屏幕上，颜色为TextColor，持续时间为0秒
-		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
-	}
+	//	FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(Action));
+	//	// 调用之前定义的LogOnScreen函数，将ActionMsg显示在屏幕上，颜色为TextColor，持续时间为0秒
+	//	//LogOnScreen(this, ActionMsg, TextColor, 0.0f);
+	//}
 }
 
 // 添加Action
