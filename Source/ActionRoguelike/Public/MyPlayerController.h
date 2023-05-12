@@ -18,6 +18,18 @@ class ACTIONROGUELIKE_API AMyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 protected:
+	// 用于指定暂停菜单的蓝图类
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+	// 一个UUserWidget对象的指针，它将在运行时保存暂停菜单的实例
+	UPROPERTY()
+	UUserWidget* PauseMenuInstance;
+	// 一个函数，用于切换暂停菜单的显示/隐藏状态
+	UFUNCTION(BlueprintCallable)
+	void TogglePauseMenu();
+	// 重写基类APlayerController的函数SetupInputComponent，用于设置玩家的输入绑定
+	void SetupInputComponent() override;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
 
