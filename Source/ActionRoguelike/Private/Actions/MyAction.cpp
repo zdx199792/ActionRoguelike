@@ -22,6 +22,16 @@ void UMyAction::StartAction_Implementation(AActor* Instigator)
 	// 将bIsRunning设置为true，表示UMyAction正在运行
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
+
+	// 如果当前动作所属的组件的拥有者处于服务器角色（ROLE_Authority）
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority)
+	{
+		// 记录当前世界时间作为动作开始的时间
+		TimeStarted = GetWorld()->TimeSeconds;
+	}
+	// 当动作开始时，广播OnActionStarted事件
+	// GetOwningComponent()获取当前动作所属的组件，this代表当前动作实例
+	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
 
@@ -36,6 +46,8 @@ void UMyAction::StopAction_Implementation(AActor* Instigator)
 	// 将bIsRunning设置为false，表示UMyAction已停止运行
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
+	// 当动作停止时，广播OnActionStopped事件
+	GetOwningComponent()->OnActionStopped.Broadcast(GetOwningComponent(), this);
 }
 //用于检查UMyAction是否可以开始。如果UMyAction正在运行或拥有UMyAction实例的角色有被阻止启动的标签，则返回false，否则返回true。
 bool UMyAction::CanStart_Implementation(AActor* Instigator)
@@ -100,4 +112,5 @@ void UMyAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutL
 
 	DOREPLIFETIME(UMyAction, RepData);
 	DOREPLIFETIME(UMyAction, ActionComp);
+	DOREPLIFETIME(UMyAction, TimeStarted);
 }

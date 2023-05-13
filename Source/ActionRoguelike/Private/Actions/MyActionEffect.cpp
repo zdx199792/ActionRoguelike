@@ -3,12 +3,26 @@
 
 #include "Actions/MyActionEffect.h"
 #include "Actions/MyActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 UMyActionEffect::UMyActionEffect()
 {
 	bAutoStart = true;
 }
-
+float UMyActionEffect::GetTimeRemaining() const
+{
+	// 获取当前世界的游戏状态
+	AGameStateBase* GS = GetWorld()->GetGameState<AGameStateBase>();
+	if (GS)
+	{
+		// 计算动作结束的时间（动作开始的时间加上动作的持续时间）
+		float EndTime = TimeStarted + Duration;
+		// 返回动作结束时间和当前服务器时间的差值，这就是动作的剩余时间
+		return EndTime - GS->GetServerWorldTimeSeconds();
+	}
+	// 如果没有有效的游戏状态，那么就返回动作的持续时间，作为动作的剩余时间
+	return Duration;
+}
 void UMyActionEffect::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);

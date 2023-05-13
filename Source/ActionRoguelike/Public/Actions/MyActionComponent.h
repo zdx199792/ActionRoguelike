@@ -8,6 +8,8 @@
 #include "MyActionComponent.generated.h"
 
 class UMyAction;
+// 定义一个带有两个参数的动态多播委托。当Action状态改变时触发
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChanged, UMyActionComponent*, OwningComp, UMyAction*, Action);
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONROGUELIKE_API UMyActionComponent : public UActorComponent
 {
@@ -44,12 +46,19 @@ protected:
 	TArray<TSubclassOf<UMyAction>> DefaultActions;
 
 	// 声明一个保存动作指针的数组
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	TArray<UMyAction*> Actions;
 
 	virtual void BeginPlay() override;
 
 public:	
+	// 声明一个可以在蓝图中分配的多播委托，当动作开始时触发。
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStarted;
+	// 声明一个可以在蓝图中分配的多播委托，当动作停止时触发。
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStopped;
+
 	bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
