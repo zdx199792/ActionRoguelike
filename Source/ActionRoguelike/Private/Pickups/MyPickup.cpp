@@ -24,7 +24,10 @@ void AMyPickup::Interact_Implementation(APawn* InstigatorPawn)
 {
 	//不同道具子类根据其效果实现不同功能
 }
-
+FText AMyPickup::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
 //用于显示物品的函数，通过调用 SetPickupState() 函数将物品设置为可交互和可渲染的状态
 void AMyPickup::ShowPickup()
 {

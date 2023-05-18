@@ -21,6 +21,8 @@ protected:
 public:
 	//重写接口函数，实现生命恢复药水的功能
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
+	// 实现获取交互信息文本方法
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
 
 	AMyPickup_Health();
 };

@@ -48,4 +48,7 @@ protected:
 
 	//设置道具的激活状态（是否可交互和渲染）
 	void SetPickupState(bool bNewIsActive);
+
+	// 获取交互信息文本
+	FText GetInteractText_Implementation(APawn* InstigatorPawn);
 };
