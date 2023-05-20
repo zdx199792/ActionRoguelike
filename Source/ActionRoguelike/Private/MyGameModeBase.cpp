@@ -16,7 +16,12 @@
 #include "GameFramework/GameStateBase.h"
 #include "SInteractionInterface.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
-static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
+#include "MyMonsterData.h"
+#include "../ActionRoguelike.h"
+#include "Actions/MyActionComponent.h"
+#include "Engine/AssetManager.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 AMyGameModeBase::AMyGameModeBase()
 {
@@ -127,11 +132,65 @@ void AMyGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.IsValidIndex(0))
 	{
-		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
-		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+		// 如果怪物表存在
+		if (MonsterTable)
+		{
+			// 定义一个MonsterInfoRow指针的数组
+			TArray<FMonsterInfoRow*> Rows;
+			// 从怪物表中获取所有行，将其存入Rows数组
+			MonsterTable->GetAllRows("", Rows);
+
+			// 随机选择一个怪物
+			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
+			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
+			// 获取资产管理器实例
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+			if (Manager)
+			{
+				// 输出加载怪物的提示信息
+				LogOnScreen(this, "Loading monster...", FColor::Green);
+				// 输出加载怪物的提示信息
+				TArray<FName> Bundles;
+				// 创建一个回调代理
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &AMyGameModeBase::OnMonsterLoaded, SelectedRow->MonsterId, Locations[0]);
+				// 使用资产管理器加载选择的怪物
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
+			}
+		}
 	}
 }
+void AMyGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation)
+{
+	LogOnScreen(this, "Finished loading.", FColor::Green);
+	// 获取资产管理器实例
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+	if (Manager)
+	{
+		// 通过管理器获取主资产对象（即怪物数据资源）
+		UMyMonsterData* MonsterData = Cast<UMyMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
+		if (MonsterData)
+		{
+			// 通过怪物数据资源的信息生成一个新的怪物角色
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+			if (NewBot)
+			{
+				// 输出生成新怪物的提示信息
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
 
+				// 获取怪物角色的行为组件
+				UMyActionComponent* ActionComp = Cast<UMyActionComponent>(NewBot->GetComponentByClass(UMyActionComponent::StaticClass()));
+				if (ActionComp)
+				{
+					// 为怪物角色添加其特有的行为
+					for (TSubclassOf<UMyAction> ActionClass : MonsterData->Actions)
+					{
+						ActionComp->AddAction(NewBot, ActionClass);
+					}
+				}
+			}
+		}
+	}
+}
 
 void AMyGameModeBase::OnPickupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {

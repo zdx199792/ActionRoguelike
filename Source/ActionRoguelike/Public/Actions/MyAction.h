@@ -31,7 +31,7 @@ class ACTIONROGUELIKE_API UMyAction : public UObject
 protected:
 	// Buff状态图标
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	UTexture2D* Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
 	// 动作开始的时间
 	UPROPERTY(Replicated)
 	float TimeStarted;
