@@ -50,6 +50,8 @@ protected:
 	TArray<UMyAction*> Actions;
 
 	virtual void BeginPlay() override;
+	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// 声明一个可以在蓝图中分配的多播委托，当动作开始时触发。

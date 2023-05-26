@@ -19,7 +19,7 @@ ASTreasureChestItem::ASTreasureChestItem()
 	//打开宝箱时盖子倾斜角度
 	OpenPitch = 110.0f;
 	// 开启复制
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 void ASTreasureChestItem::Interact_Implementation(APawn* InstigatorPawn)

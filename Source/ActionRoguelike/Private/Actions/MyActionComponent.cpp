@@ -6,7 +6,10 @@
 #include "../ActionRoguelike.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
-// Sets default values for this component's properties
+
+// 声明名为"StartActionByName"的循环统计，用于跟踪"StartActionByName"函数的性能
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_STANFORD);
+
 UMyActionComponent::UMyActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -26,6 +29,21 @@ void UMyActionComponent::BeginPlay()
 			AddAction(GetOwner(), ActionClass);
 		}
 	}
+}
+// 组件被销毁时，停止所有正在运行的动作
+void UMyActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// Stop all
+	TArray<UMyAction*> ActionsCopy = Actions;
+	for (UMyAction* Action : ActionsCopy)
+	{
+		if (Action && Action->IsRunning())
+		{
+			Action->StopAction(GetOwner());
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void UMyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -96,6 +114,8 @@ UMyAction* UMyActionComponent::GetAction(TSubclassOf<UMyAction> ActionClass) con
 //根据名称启动一个动作
 bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
+	// 创建一个循环计数器，用于在作用域内跟踪代码执行的性能
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
 	// 遍历 Actions 数组，查找并运行指定名称ActionName的动作
 	for (UMyAction* Action : Actions)
 	{
@@ -114,6 +134,9 @@ bool UMyActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 			{
 				ServerStartAction(Instigator, ActionName);
 			}
+
+			// 在代码中插入一个书签追踪，用于标记"StartAction"的位置
+			TRACE_BOOKMARK(TEXT("StartAction::%s"), *GetNameSafe(Action));
 			Action->StartAction(Instigator);
 			return true;
 		}

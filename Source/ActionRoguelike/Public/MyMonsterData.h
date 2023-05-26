@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/PrimaryAssetLabel.h"
+#include "Engine/DataAsset.h"
 #include "MyMonsterData.generated.h"
 
 class UMyAction;
 
 UCLASS()
-class ACTIONROGUELIKE_API UMyMonsterData : public UPrimaryAssetLabel
+class ACTIONROGUELIKE_API UMyMonsterData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
